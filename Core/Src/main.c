@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ssd1306.h"
+#include "fonts.h"
+#include "test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +62,16 @@ static void MX_USART3_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void display(uint8_t num)
+{
+	char buf[11];
+	sprintf(buf, "%d       ", num);
+
+	SSD1306_GotoXY (10,10);
+	SSD1306_Puts (buf, &Font_11x18, 1);
+	SSD1306_UpdateScreen();
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -95,6 +107,16 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
+  SSD1306_Init();
+
+  SSD1306_GotoXY (10,10);
+  SSD1306_Puts ("Welcome", &Font_11x18, 1);
+  SSD1306_UpdateScreen();
+
+  HAL_Delay(1500);
+
+  uint8_t i = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,8 +127,17 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);
+//	 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);
+//	 HAL_Delay(500);
+
+	 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, 1);
 	 HAL_Delay(500);
+	 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, 0);
+	 display(i++);
+	 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
+	 HAL_Delay(500);
+	 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+
   }
   /* USER CODE END 3 */
 }
@@ -174,7 +205,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -240,10 +271,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3|GPIO_PIN_4, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PA3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  /*Configure GPIO pins : PA3 PA4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
